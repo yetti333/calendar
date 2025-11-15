@@ -1,24 +1,55 @@
-const CACHE_NAME = 'pwa-calendar-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json'
+const CACHE_NAME = "calendar";
+const FILES_TO_CACHE = [
+  "/",
+  "/index.html",
+  "/style.css",
+  "/script.js",
+  "/manifest.json",
+  "/icon-192.png", // pokud máš ikony
+  "/icon-512.png"
 ];
 
-self.addEventListener('install', event => {
+// Instalace: cache souborů
+self.addEventListener("install", event => {
+  self.skipWaiting(); // okamžitá aktivace
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
+      return cache.addAll(FILES_TO_CACHE);
     })
   );
 });
 
-self.addEventListener('fetch', event => {
+// Aktivace: vyčištění starých cache
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    )
+  );
+  self.clients.claim(); // převezme kontrolu nad stránkou
+});
+
+// Fetch: obsluha požadavků
+self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
+    caches.match(event.request).then(cached => {
+      return (
+        cached ||
+        fetch(event.request).catch(() => {
+          // fallback pro offline navigaci
+          if (event.request.mode === "navigate") {
+            return caches.match("/index.html");
+          }
+        })
+      );
     })
   );
 });
