@@ -32,3 +32,36 @@ body {
   background-color: #ef5350; /* červená */
   color: black;
 }
+
+#calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+#prev-month {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #90caf9;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#prev-month:hover {
+  background-color: #64b5f6;
+}
+
+#next-month {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #90caf9;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#next-month:hover {
+  background-color: #64b5f6;
+}
