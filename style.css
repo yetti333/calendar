@@ -23,3 +23,12 @@ body {
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
+
+.calendar-grid div.desaty-den {
+  background-color: #fff176; /* světle žlutá */
+}
+
+.calendar-grid div.vikend {
+  background-color: #ef5350; /* červená */
+  color: black;
+}
