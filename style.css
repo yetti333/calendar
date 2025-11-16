@@ -16,16 +16,20 @@ body {
   grid-template-columns: repeat(7, 1fr);
   gap: 0.5rem;
 }
-
+/* bunky kalendáře */
 .calendar-grid div {
   background: white;
   padding: 1rem;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
 }
 
-.calendar-grid div.desaty-den {
-  background-color: #fff176; /* světle žlutá */
+.calendar-grid div:empty {
+  visibility: hidden;
 }
 
 .calendar-grid div.vikend {
@@ -41,6 +45,8 @@ body {
 }
 
 #prev-month {
+  grid-column: 1 / 2;
+  justify-self: start;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background-color: #90caf9;
@@ -54,6 +60,8 @@ body {
 }
 
 #next-month {
+  grid-column: 7 / 8;
+  justify-self: end;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background-color: #90caf9;
@@ -64,4 +72,11 @@ body {
 
 #next-month:hover {
   background-color: #64b5f6;
+}
+
+/* === Hover efekty jen pro desktop === */
+@media (hover: hover) {
+  .calendar-grid div:hover {
+    background-color: #e0f7fa;
+  }
 }
