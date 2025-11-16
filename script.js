@@ -1,9 +1,15 @@
 let currentYear = new Date().getFullYear();
 let currentMonth = new Date().getMonth(); // 0 = leden, 11 = prosinec
+const actualDate = new Date();
+const actualDay = actualDate.getDate();
+const actualMonth = actualDate.getMonth();
+const actualYear = actualDate.getFullYear()
 
 function renderCalendar(year, month) {
   const calendar = document.getElementById('calendar');
   const monthYear = document.getElementById('month-year');
+  
+
   calendar.innerHTML = '';
 
   const firstDay = new Date(year, month, 1);
@@ -27,7 +33,10 @@ function renderCalendar(year, month) {
     const dayOfWeek = date.getDay();
     let classes = '';
 
-    if (dayOfWeek === 0 || dayOfWeek === 6) classes += ' vikend';
+   ;
+    if (day === actualDay && currentMonth === actualMonth && currentYear === actualYear) classes += ' dnes';
+      
+    //console.log(actualDay);
 
     calendar.innerHTML += `<div class="${classes.trim()}">${day}</div>`;
   }
@@ -50,6 +59,13 @@ document.getElementById('next-month').addEventListener('click', () => {
     currentMonth = 0;
     currentYear++;
   }
+  renderCalendar(currentYear, currentMonth);
+});
+
+// Tlačítko DNES
+document.getElementById('go-today').addEventListener('click', () => {
+  currentMonth = actualMonth;
+  currentYear = actualYear;
   renderCalendar(currentYear, currentMonth);
 });
 

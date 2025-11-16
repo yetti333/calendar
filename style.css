@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: sans-serif;
   text-align: center;
@@ -16,6 +20,20 @@ body {
   grid-template-columns: repeat(7, 1fr);
   gap: 0.5rem;
 }
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #555;
+}
+
+.calendar-weekdays div {
+  background: transparent;
+  padding: 0.5rem;
+}
 /* bunky kalendáře */
 .calendar-grid div {
   background: white;
@@ -25,7 +43,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 
 .calendar-grid div:empty {
@@ -37,6 +54,11 @@ body {
   color: black;
 }
 
+.calendar-grid div.dnes {
+  outline: 2px solid #1976d2;
+  font-weight: bold;
+}
+
 #calendar-header {
   display: flex;
   align-items: center;
@@ -45,8 +67,6 @@ body {
 }
 
 #prev-month {
-  grid-column: 1 / 2;
-  justify-self: start;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background-color: #90caf9;
@@ -60,8 +80,6 @@ body {
 }
 
 #next-month {
-  grid-column: 7 / 8;
-  justify-self: end;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background-color: #90caf9;
@@ -72,6 +90,20 @@ body {
 
 #next-month:hover {
   background-color: #64b5f6;
+}
+
+#go-today {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #a5d6a7;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 0.5rem;
+}
+
+#go-today:hover {
+  background-color: #81c784;
 }
 
 /* === Hover efekty jen pro desktop === */
