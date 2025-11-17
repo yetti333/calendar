@@ -33,11 +33,9 @@ function renderCalendar(year, month) {
     const dayOfWeek = date.getDay();
     let classes = '';
 
-   ;
     if (day === actualDay && currentMonth === actualMonth && currentYear === actualYear) classes += ' dnes';
       
     //console.log(actualDay);
-
     calendar.innerHTML += `<div class="${classes.trim()}">${day}</div>`;
   }
 }
@@ -49,7 +47,7 @@ document.getElementById('prev-month').addEventListener('click', () => {
     currentMonth = 11;
     currentYear--;
   }
-  renderCalendar(currentYear, currentMonth);
+  animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
 });
 
 // Tlačítko: další měsíc
@@ -59,15 +57,31 @@ document.getElementById('next-month').addEventListener('click', () => {
     currentMonth = 0;
     currentYear++;
   }
-  renderCalendar(currentYear, currentMonth);
+  animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
 });
 
 // Tlačítko DNES
 document.getElementById('go-today').addEventListener('click', () => {
   currentMonth = actualMonth;
   currentYear = actualYear;
-  renderCalendar(currentYear, currentMonth);
+  animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
 });
 
+function animateCalendarUpdate(callback) {
+  const calendar = document.getElementById('calendar');
+
+  calendar.classList.add('fade-out');
+
+  setTimeout(() => {
+    callback(); // vykresli nový měsíc
+    calendar.classList.remove('fade-out');
+    calendar.classList.add('fade-in');
+
+    setTimeout(() => {
+      calendar.classList.remove('fade-in');
+    }, 300);
+  }, 300);
+}
+
 // Inicializace
-renderCalendar(currentYear, currentMonth);
+animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));

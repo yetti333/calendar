@@ -1,41 +1,79 @@
+/* === Základní reset === */
 * {
   box-sizing: border-box;
 }
 
 body {
   font-family: sans-serif;
-  text-align: center;
   margin: 0;
   padding: 1rem;
+  text-align: center;
   background: #f0f0f0;
   overflow-x: hidden;
+}
 
+/* === Kontejner kalendáře === */
+.calendar-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 0.5rem;
+}
+
+/* === Hlavička měsíce === */
+#calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
 #month-year {
   font-size: 1.5rem;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
-.calendar-container {
-  padding: 0 0.5rem;       /* odsazení od okrajů */
-  max-width: 600px;      /*   volitelné: omezí šířku na desktopu */
-  margin: 0 auto;          /* vycentrování */
+/* === Tlačítka navigace === */
+button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
+#prev-month,
+#next-month {
+  background-color: #90caf9;
+}
+
+#prev-month:hover,
+#next-month:hover {
+  background-color: #64b5f6;
+}
+
+#go-today {
+  background-color: #a5d6a7;
+  margin: 0 0.5rem;
+}
+
+#go-today:hover {
+  background-color: #81c784;
+}
+
+/* === Grid layout pro dny a buňky === */
 .calendar-weekdays,
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.5rem;
-  }
+}
 
+/* === Zkratky dnů v týdnu === */
 .calendar-weekdays {
   margin-bottom: 0.5rem;
   font-weight: bold;
   color: #555;
 }
-
 
 .calendar-weekdays div {
   display: flex;
@@ -43,12 +81,13 @@ body {
   justify-content: center;
   padding: 1rem;
 }
-/* bunky kalendáře */
+
+/* === Buňky kalendáře === */
 .calendar-grid div {
   background: white;
   padding: 1rem;
   border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,60 +98,13 @@ body {
 }
 
 .calendar-grid div.vikend {
-  background-color: #ef5350; /* červená */
+  background-color: #ef5350;
   color: black;
 }
 
 .calendar-grid div.dnes {
   outline: 2px solid #1976d2;
   font-weight: bold;
-}
-
-#calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-#prev-month {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  background-color: #90caf9;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#prev-month:hover {
-  background-color: #64b5f6;
-}
-
-#next-month {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  background-color: #90caf9;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#next-month:hover {
-  background-color: #64b5f6;
-}
-
-#go-today {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  background-color: #a5d6a7;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 0 0.5rem;
-}
-
-#go-today:hover {
-  background-color: #81c784;
 }
 
 /* === Hover efekty jen pro desktop === */
@@ -122,10 +114,21 @@ body {
   }
 }
 
-.calendar-weekdays div {
-  background-color: rgba(255, 0, 0, 0.1);
-}
-.calendar-grid div {
-  background-color: rgba(220, 190, 16, 0.1);
+/* === Animace přechodu mezi měsíci === */
+.calendar-grid.fade-out {
+  animation: fadeOut 300ms ease forwards;
 }
 
+.calendar-grid.fade-in {
+  animation: fadeIn 300ms ease forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-20px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
