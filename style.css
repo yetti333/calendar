@@ -17,7 +17,7 @@ body {
 
 .calendar-container {
   padding: 0 0.5rem;       /* odsazení od okrajů */
-  /*max-width: 600px;         volitelné: omezí šířku na desktopu */
+  max-width: 600px;    /*     volitelné: omezí šířku na desktopu */
   margin: 0 auto;          /* vycentrování */
 }
 
