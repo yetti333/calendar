@@ -8,6 +8,8 @@ body {
   margin: 0;
   padding: 1rem;
   background: #f0f0f0;
+  overflow-x: hidden;
+
 }
 
 #month-year {
@@ -17,22 +19,23 @@ body {
 
 .calendar-container {
   padding: 0 0.5rem;       /* odsazení od okrajů */
-  max-width: 600px;    /*     volitelné: omezí šířku na desktopu */
+  max-width: 600px;      /*   volitelné: omezí šířku na desktopu */
   margin: 0 auto;          /* vycentrování */
 }
 
 .calendar-weekdays,
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.5rem;
-}
+  }
 
 .calendar-weekdays {
   margin-bottom: 0.5rem;
   font-weight: bold;
   color: #555;
 }
+
 
 .calendar-weekdays div {
   display: flex;
@@ -123,6 +126,6 @@ body {
   background-color: rgba(255, 0, 0, 0.1);
 }
 .calendar-grid div {
-  background-color: rgba(113, 194, 14, 0.1);
+  background-color: rgba(220, 190, 16, 0.1);
 }
 
