@@ -15,6 +15,12 @@ body {
   margin-bottom: 1rem;
 }
 
+.calendar-container {
+  padding: 0 0.5rem;       /* odsazení od okrajů */
+  max-width: 600px;         
+  margin: 0 auto;          /* vycentrování */
+}
+
 .calendar-weekdays,
 .calendar-grid {
   display: grid;
@@ -114,9 +120,10 @@ body {
 }
 
 .calendar-weekdays div {
-  background-color: rgba(255, 0, 0, 0.1);
+  background-color: rgba(188, 27, 27, 0.1);
 }
 .calendar-grid div {
-  background-color: rgba(0, 0, 255, 0.1);
+  background-color: rgba(42, 42, 202, 0.1);
 }
+
 
