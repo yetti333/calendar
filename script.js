@@ -83,5 +83,43 @@ function animateCalendarUpdate(callback) {
   }, 300);
 }
 
+let touchStartX = 0;
+let touchEndX = 0;
+
+const calendarContainer = document.querySelector('.calendar-container');
+
+calendarContainer.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+});
+
+calendarContainer.addEventListener('touchend', (e) => {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipeGesture();
+});
+
+function handleSwipeGesture() {
+  const threshold = 50; // minimální vzdálenost pro gesto
+
+  if (touchEndX < touchStartX - threshold) {
+    // swipe vlevo → další měsíc
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
+  }
+
+  if (touchEndX > touchStartX + threshold) {
+    // swipe vpravo → předchozí měsíc
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
+  }
+}
+
 // Inicializace
 animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
