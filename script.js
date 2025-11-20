@@ -3,7 +3,8 @@ let currentMonth = new Date().getMonth(); // 0 = leden, 11 = prosinec
 const actualDate = new Date();
 const actualDay = actualDate.getDate();
 const actualMonth = actualDate.getMonth();
-const actualYear = actualDate.getFullYear()
+const actualYear = actualDate.getFullYear();
+const vibr = 15;
 
 function renderCalendar(year, month) {
   const calendar = document.getElementById('calendar');
@@ -38,6 +39,24 @@ function renderCalendar(year, month) {
     //console.log(actualDay);
     calendar.innerHTML += `<div class="${classes.trim()}">${day}</div>`;
   }
+
+  // Zvýraznění dne po kliknutí
+const dayCells = calendar.querySelectorAll('div');
+let selectedDay = null;
+
+
+dayCells.forEach(cell => {
+  if (cell.textContent.trim() !== '') {
+    cell.addEventListener('click', () => {
+      // Zruš předchozí výběr
+      dayCells.forEach(c => c.classList.remove('selected'));
+      // Přidej zvýraznění na kliknutý den
+      cell.classList.add('selected');
+      selectedDay = parseInt(cell.textContent);
+      if (navigator.vibrate) navigator.vibrate(vibr);
+    });
+  }
+});
 }
 
 // Tlačítko: předchozí měsíc
@@ -67,10 +86,13 @@ document.getElementById('go-today').addEventListener('click', () => {
   animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
 });
 
+// Animace kalendáře
 function animateCalendarUpdate(callback) {
   const calendar = document.getElementById('calendar');
 
   calendar.classList.add('fade-out');
+  if (navigator.vibrate) navigator.vibrate(vibr);
+
 
   setTimeout(() => {
     callback(); // vykresli nový měsíc
@@ -78,14 +100,15 @@ function animateCalendarUpdate(callback) {
     calendar.classList.add('fade-in');
 
     setTimeout(() => {
+      cchEndX = 0;
       calendar.classList.remove('fade-in');
     }, 300);
   }, 300);
 }
 
+// Posun přejetím
 let touchStartX = 0;
-let touchEndX = 0;
-
+let tou
 const calendarContainer = document.querySelector('.calendar-container');
 
 calendarContainer.addEventListener('touchstart', (e) => {
@@ -101,6 +124,7 @@ function handleSwipeGesture() {
   const threshold = 50; // minimální vzdálenost pro gesto
 
   if (touchEndX < touchStartX - threshold) {
+    if (navigator.vibrate) navigator.vibrate(vibr);
     // swipe vlevo → další měsíc
     currentMonth++;
     if (currentMonth > 11) {
@@ -111,6 +135,7 @@ function handleSwipeGesture() {
   }
 
   if (touchEndX > touchStartX + threshold) {
+    if (navigator.vibrate) navigator.vibrate(vibr);
     // swipe vpravo → předchozí měsíc
     currentMonth--;
     if (currentMonth < 0) {
@@ -123,3 +148,15 @@ function handleSwipeGesture() {
 
 // Inicializace
 animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
+
+// Zrušení předchozího výběru dne
+document.addEventListener('click', (e) => {
+  const calendar = document.getElementById('calendar');
+  const clickedInsideCalendarCell = e.target.closest('#calendar div');
+
+  if (!clickedInsideCalendarCell) {
+    const selected = calendar.querySelector('.selected');
+    if (selected) selected.classList.remove('selected');
+  }
+});
+

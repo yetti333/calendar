@@ -107,6 +107,13 @@ button {
   font-weight: bold;
 }
 
+/* === Zvýraznění dne po kliknutí === */
+.calendar-grid div.selected {
+  background-color: #ffd54f;
+  outline: 2px solid #e1680a;
+  font-weight: bold;
+}
+
 /* === Hover efekty jen pro desktop === */
 @media (hover: hover) {
   .calendar-grid div:hover {
@@ -122,7 +129,7 @@ button {
 .calendar-grid.fade-in {
   animation: fadeIn 300ms ease forwards;
 }
-
+/*
 @keyframes fadeOut {
   from { opacity: 1; transform: translateX(0); }
   to { opacity: 0; transform: translateX(-20px); }
@@ -132,3 +139,46 @@ button {
   from { opacity: 0; transform: translateX(20px); }
   to { opacity: 1; transform: translateX(0); }
 }
+ */
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: rotateY(0deg); }
+  to { opacity: 0; transform: rotateY(90deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: rotateY(-90deg); }
+  to { opacity: 1; transform: rotateY(0deg); }
+}
+ /*
+
+ @keyframes fadeOut {
+  from { opacity: 1; filter: blur(0); }
+  to { opacity: 0; filter: blur(4px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; filter: blur(4px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(1.05); }
+  to { opacity: 1; transform: scale(1); }
+}
+*/
