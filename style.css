@@ -30,6 +30,10 @@ body {
 #month-year {
   font-size: 1.5rem;
   margin: 0;
+  display: inline-block;
+  width: 180px;   /* nastav dostatečnou šířku */
+  text-align: center;
+
 }
 
 /* === Tlačítka navigace === */
@@ -105,6 +109,21 @@ button {
 .calendar-grid div.dnes {
   outline: 2px solid #1976d2;
   font-weight: bold;
+}
+
+.calendar-grid div.ranni {
+  background-color: #F9F6B3;
+  color: black;
+}
+
+.calendar-grid div.odpoledni {
+  background-color: #B0EFB0;
+  color: black;
+}
+
+.calendar-grid div.nocni {
+  background-color: #B0D9EF;
+  color: black;
 }
 
 /* === Zvýraznění dne po kliknutí === */

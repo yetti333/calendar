@@ -1,16 +1,20 @@
+const smenaA = [0,0,2,2,2,2,2,0,0,1,1,1,1,3,3,3,0,0,0,0,1,1,1,3,3,3,3,0]; //28x, 1-11-2025
+const smenaB = [1,1,3,3,3,3,0,0,0,2,2,2,2,2,0,0,1,1,1,1,3,3,3,0,0,0,0,1];
+const smenaC = [3,3,0,0,0,0,1,1,1,3,3,3,3,0,0,0,2,2,2,2,2,0,0,1,1,1,1,3];
+const smenaD = [0,0,1,1,1,1,3,3,3,0,0,0,0,1,1,1,3,3,3,3,0,0,0,2,2,2,2,2];
 let currentYear = new Date().getFullYear(); //datum kalendáře
 let currentMonth = new Date().getMonth(); // 0 = leden, 11 = prosinec
 const actualDate = new Date(); //reálné dstum
 const actualDay = actualDate.getDate();
 const actualMonth = actualDate.getMonth();
 const actualYear = actualDate.getFullYear();
-const vibr = 15;
+const vibr = 7;
 
 function renderCalendar(year, month) {
   const calendar = document.getElementById('calendar');
   const monthYear = document.getElementById('month-year');
-  
-
+  let startSmen = 0;
+ 
   calendar.innerHTML = '';
 
   const firstDay = new Date(year, month, 1);
@@ -32,9 +36,19 @@ function renderCalendar(year, month) {
   for (let day = 1; day <= lastDay.getDate(); day++) {
     const date = new Date(year, month, day);
     const dayOfWeek = date.getDay();
+    let shiftDayIndex = 0;
+    let shiftDayStart = 0;
     let classes = '';
+    
     if (day === actualDay && currentMonth === actualMonth && currentYear === actualYear) classes += ' dnes';
-    //console.log(actualDay);
+    
+    shiftDayStart = daysBetween(new Date(year, month, 1));
+    shiftDayIndex = (shiftDayStart + day - 1) % 28;
+    if (smenaD[shiftDayIndex] === 0) classes += ' volno';
+    if (smenaD[shiftDayIndex] === 1) classes += ' ranni';
+    if (smenaD[shiftDayIndex] === 2) classes += ' odpoledni';
+    if (smenaD[shiftDayIndex] === 3) classes += ' nocni';
+    
     calendar.innerHTML += `<div class="${classes.trim()}">${day}</div>`;
   }
 
@@ -50,6 +64,7 @@ function renderCalendar(year, month) {
         cell.classList.add('selected');
         selectedDay = parseInt(cell.textContent);
         if (navigator.vibrate) navigator.vibrate(vibr);
+        console.log("den ", selectedDay);
       });
     }
   });
@@ -161,4 +176,12 @@ document.addEventListener('click', (e) => {
     if (selected) selected.classList.remove('selected');
   }
 });
+
+function daysBetween(day1) {
+  const day2 = new Date(2025, 10, 1); // listopad je 10, začíná se od 0
+  const between = Math.abs(Math.floor((day1 - day2) / (1000 * 60 * 60 * 24)));
+  console.log(between);
+  return between;
+}
+
 
