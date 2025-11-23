@@ -4,7 +4,7 @@ const smenaC = [3,3,0,0,0,0,1,1,1,3,3,3,3,0,0,0,2,2,2,2,2,0,0,1,1,1,1,3];
 const smenaD = [0,0,1,1,1,1,3,3,3,0,0,0,0,1,1,1,3,3,3,3,0,0,0,2,2,2,2,2];
 let currentYear = new Date().getFullYear(); //datum kalendáře
 let currentMonth = new Date().getMonth(); // 0 = leden, 11 = prosinec
-const actualDate = new Date(); //reálné dstum
+const actualDate = new Date(); //reálné datum
 const actualDay = actualDate.getDate();
 const actualMonth = actualDate.getMonth();
 const actualYear = actualDate.getFullYear();
@@ -13,7 +13,8 @@ const vibr = 7;
 function renderCalendar(year, month) {
   const calendar = document.getElementById('calendar');
   const monthYear = document.getElementById('month-year');
-  let startSmen = 0;
+  const prevButton = document.getElementById('prev-month'); 
+  //let startSmen = 0;
  
   calendar.innerHTML = '';
 
@@ -26,6 +27,17 @@ function renderCalendar(year, month) {
     month: 'long',
     year: 'numeric'
   });
+  
+// Zakázat tlačítko předchozí měsíc pro listopad 2025
+ if (year === 2025 && month === 10) {
+    prevButton.disabled = true;
+    prevButton.style.pointerEvents = 'none';
+  } else {
+    prevButton.disabled = false;
+    prevButton.style.pointerEvents = 'auto';
+  }
+
+
 
   // Prázdné buňky před začátkem měsíce
   for (let i = 0; i < startDay; i++) {
@@ -72,6 +84,9 @@ function renderCalendar(year, month) {
 
 // Tlačítko: předchozí měsíc
 document.getElementById('prev-month').addEventListener('click', () => {
+  if (currentYear === 2025 && currentMonth === 10) {
+    return;
+  }
   currentMonth--;
   if (currentMonth < 0) {
     currentMonth = 11;
@@ -141,7 +156,7 @@ function handleSwipeGesture() {
   const threshold = 50; // minimální vzdálenost pro gesto
 
   if (touchEndX < touchStartX - threshold) {
-    if (navigator.vibrate) navigator.vibrate(vibr);
+    //if (navigator.vibrate) navigator.vibrate(vibr);
     // swipe vlevo → další měsíc
     currentMonth++;
     if (currentMonth > 11) {
@@ -152,8 +167,11 @@ function handleSwipeGesture() {
   }
 
   if (touchEndX > touchStartX + threshold) {
-    if (navigator.vibrate) navigator.vibrate(vibr);
+    //if (navigator.vibrate) navigator.vibrate(vibr);
     // swipe vpravo → předchozí měsíc
+    if (currentYear === 2025 && currentMonth === 10) {
+    return;
+  }
     currentMonth--;
     if (currentMonth < 0) {
       currentMonth = 11;
@@ -177,6 +195,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Funkce pro výpočet dnů mezi dvěma daty
 function daysBetween(day1) {
   const day2 = new Date(2025, 10, 1); // listopad je 10, začíná se od 0
   const between = Math.abs(Math.floor((day1 - day2) / (1000 * 60 * 60 * 24)));
