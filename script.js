@@ -78,12 +78,12 @@ function renderCalendar(year, month) {
     let tooltip = '';
     
     //Dnes
-    if (day === actualDay && currentMonth === actualMonth && currentYear === actualYear) classes += ' dnes';
+    if (day === actualDay && month === actualMonth && year === actualYear) classes += ' dnes';
     
     // směny
     shiftDayStart = daysBetween(new Date(year, month, 1));
     shiftDayIndex = (shiftDayStart + day - 1) % 28;
-    console.log("index směny: ", shiftDayIndex);
+    //console.log("index směny: ", shiftDayIndex);
     if (smenaD[shiftDayIndex] === 0) classes += ' volno';
     if (smenaD[shiftDayIndex] === 1) classes += ' ranni';
     if (smenaD[shiftDayIndex] === 2) classes += ' odpoledni';
@@ -170,7 +170,7 @@ function animateCalendarUpdate(callback) {
     calendar.classList.add('fade-in');
 
     setTimeout(() => {
-      cchEndX = 0;
+      touchEndX = 0;
       calendar.classList.remove('fade-in');
     }, 300);
   }, 300);
@@ -178,7 +178,7 @@ function animateCalendarUpdate(callback) {
 
 // Posun přejetím
 let touchStartX = 0;
-let tou
+let touchEndX = 0;
 const calendarContainer = document.querySelector('.calendar-container');
 
 calendarContainer.addEventListener('touchstart', (e) => {
