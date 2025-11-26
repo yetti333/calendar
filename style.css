@@ -126,6 +126,16 @@ button {
   color: black;
 }
 
+.calendar-grid div.svatek {
+  color: lightcoral;
+  font-weight: bold;
+}
+
+.calendar-grid div.svatek {
+  color: red;
+  font-weight: bold;
+}
+
 /* === Zvýraznění dne po kliknutí === */
 .calendar-grid div.selected {
   background-color: #ffd54f;

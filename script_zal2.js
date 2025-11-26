@@ -2,33 +2,6 @@ const smenaA = [0,0,2,2,2,2,2,0,0,1,1,1,1,3,3,3,0,0,0,0,1,1,1,3,3,3,3,0]; //28x,
 const smenaB = [1,1,3,3,3,3,0,0,0,2,2,2,2,2,0,0,1,1,1,1,3,3,3,0,0,0,0,1];
 const smenaC = [3,3,0,0,0,0,1,1,1,3,3,3,3,0,0,0,2,2,2,2,2,0,0,1,1,1,1,3];
 const smenaD = [0,0,1,1,1,1,3,3,3,0,0,0,0,1,1,1,3,3,3,3,0,0,0,2,2,2,2,2];
-// Seznam svátků (den-měsíc)
-// Seznam svátků s názvy
-const svatky = {
-  "1-1": "Nový rok",
-  "1-5": "Svátek práce",
-  "8-5": "Den vítězství",
-  "5-7": "Den slovanských věrozvěstů Cyrila a Metoděje",
-  "6-7": "Den upálení mistra Jana Husa",
-  "28-9": "Den české státnosti",
-  "28-10": "Den vzniku samostatného československého státu",
-  "17-11": "Den boje za svobodu a demokracii",
-  "24-12": "Štědrý den",
-  "25-12": "1. svátek vánoční",
-  "26-12": "2. svátek vánoční"
-};
-const velikonoce = {
-  2025: { "18-4": "Velký pátek", "21-4": "Velikonoční pondělí" },
-  2026: { "3-4": "Velký pátek", "6-4": "Velikonoční pondělí" },
-  2027: { "26-3": "Velký pátek", "29-3": "Velikonoční pondělí" },
-  2028: { "14-4": "Velký pátek", "17-4": "Velikonoční pondělí" },
-  2029: { "30-3": "Velký pátek", "2-4": "Velikonoční pondělí" },
-  2030: { "19-4": "Velký pátek", "22-4": "Velikonoční pondělí" },
-  2031: { "11-4": "Velký pátek", "14-4": "Velikonoční pondělí" },
-  2032: { "26-3": "Velký pátek", "29-3": "Velikonoční pondělí" },
-  2033: { "15-4": "Velký pátek", "18-4": "Velikonoční pondělí" },
-  2034: { "7-4": "Velký pátek", "10-4": "Velikonoční pondělí" }
-};
 let currentYear = new Date().getFullYear(); //datum kalendáře
 let currentMonth = new Date().getMonth(); // 0 = leden, 11 = prosinec
 const actualDate = new Date(); //reálné datum
@@ -41,6 +14,7 @@ function renderCalendar(year, month) {
   const calendar = document.getElementById('calendar');
   const monthYear = document.getElementById('month-year');
   const prevButton = document.getElementById('prev-month'); 
+  //let startSmen = 0;
  
   calendar.innerHTML = '';
 
@@ -63,6 +37,8 @@ function renderCalendar(year, month) {
     prevButton.style.pointerEvents = 'auto';
   }
 
+
+
   // Prázdné buňky před začátkem měsíce
   for (let i = 0; i < startDay; i++) {
     calendar.innerHTML += `<div></div>`;
@@ -75,31 +51,17 @@ function renderCalendar(year, month) {
     let shiftDayIndex = 0;
     let shiftDayStart = 0;
     let classes = '';
-    let tooltip = '';
     
-    //Dnes
     if (day === actualDay && currentMonth === actualMonth && currentYear === actualYear) classes += ' dnes';
     
-    // směny
     shiftDayStart = daysBetween(new Date(year, month, 1));
     shiftDayIndex = (shiftDayStart + day - 1) % 28;
-    console.log("index směny: ", shiftDayIndex);
     if (smenaD[shiftDayIndex] === 0) classes += ' volno';
     if (smenaD[shiftDayIndex] === 1) classes += ' ranni';
     if (smenaD[shiftDayIndex] === 2) classes += ' odpoledni';
     if (smenaD[shiftDayIndex] === 3) classes += ' nocni';
-
-     // svátky
-    const key = `${day}-${month+1}`; // měsíc +1 protože Date.getMonth() je 0-based
-    if (svatky[key]) {
-      classes += ' svatek';
-      tooltip = svatky[key];
-    }  else if (velikonoce[year] && velikonoce[year][key]) {
-              classes += ' svatek';
-              tooltip = velikonoce[year][key];
-      }
-   
-    calendar.innerHTML += `<div class="${classes.trim()}" title="${tooltip}">${day}</div>`;
+    
+    calendar.innerHTML += `<div class="${classes.trim()}">${day}</div>`;
   }
 
   // Zvýraznění dne po kliknutí
@@ -114,7 +76,7 @@ function renderCalendar(year, month) {
         cell.classList.add('selected');
         selectedDay = parseInt(cell.textContent);
         if (navigator.vibrate) navigator.vibrate(vibr);
-        //console.log("den ", selectedDay);
+        console.log("den ", selectedDay);
       });
     }
   });
@@ -235,11 +197,10 @@ document.addEventListener('click', (e) => {
 
 // Funkce pro výpočet dnů mezi dvěma daty
 function daysBetween(day1) {
-  const day2 = new Date(Date.UTC(2025, 10, 1)); // listopad 2025 jako základ
-  const d1 = new Date(Date.UTC(day1.getFullYear(), day1.getMonth(), day1.getDate()));
-  const diff = (d1 - day2) / (1000 * 60 * 60 * 24);
-  return Math.round(diff); // přesný rozdíl v dnech
+  const day2 = new Date(2025, 10, 1); // listopad je 10, začíná se od 0
+  const between = Math.abs(Math.floor((day1 - day2) / (1000 * 60 * 60 * 24)));
+  console.log(between);
+  return between;
 }
-
 
 
