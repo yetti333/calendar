@@ -96,6 +96,22 @@ document.getElementById("btn-next").addEventListener("click", () => {
   animateCalendarUpdate(() => renderCalendar(currentYear, currentMonth));
 });
 
+// tlačítko Zobrazit/skrýt pracovní hodiny
+const btnHours = document.getElementById("btn-hours");
+
+btnHours.addEventListener("click", () => {
+  document.body.classList.toggle("show-hours");
+  btnHours.classList.toggle("active");
+
+  const hoursCells = document.querySelectorAll(".day-hours");
+
+  if (document.body.classList.contains("show-hours")) {
+    hoursCells.forEach(cell => cell.textContent = "7,5");
+  } else {
+    hoursCells.forEach(cell => cell.textContent = "");
+  }
+});
+
 // tlačítko OK v nastavení
 document.getElementById("btn-settings-ok").addEventListener("click", () => {
   showScreen(calendarScreen);
@@ -178,7 +194,12 @@ function renderCalendar(year, month) {
               tooltip = velikonoce[year][key];
       }
    
-    calendar.innerHTML += `<div class="${classes.trim()}" title="${tooltip}">${day}</div>`;
+    calendar.innerHTML += `
+      <div class="day ${classes.trim()}" title="${tooltip}">
+        <span class="day-number">${day}</span>
+        <span class="day-hours"></span>
+      </div>
+    `;
   }
 
   // Zvýraznění dne po kliknutí
