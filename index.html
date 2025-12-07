@@ -40,38 +40,55 @@
     <!-- ✅ SCREEN: Nastavení -->
     <div id="settings-screen" class="screen">
 
-      <header class="settings-header">
-        <h2>Nastavení</h2>
-      </header>
+  <header class="settings-header">
+    <h2>Nastavení</h2>
+  </header>
 
-      <div class="settings-content">
+  <!-- záhlaví jako segment control -->
+  <div class="tab-header">
+    <button data-tab="hours" class="active">⏰ Hodiny</button>
+    <button data-tab="general">⚙️ Obecné</button>
+    
+  </div>
 
-        <!-- Motiv -->
-        <section class="settings-section">
-          <h3>Motiv zobrazení</h3>
-          <div class="segmented-control" id="theme-control">
-            <button data-value="light">🌞 Světlý</button>
-            <button data-value="dark">🌙 Tmavý</button>
-          </div>
-        </section>
+  <div class="tab-content">
+    <!-- Obecné nastavení -->
+    <div id="general" class="tab-pane">
+      
+      <!-- Motiv -->
+      <section class="settings-section">
+        <h3>Motiv zobrazení</h3>
+        <div class="segmented-control" id="theme-control">
+          <button data-value="light" class="active">🌞 Světlý</button>
+          <button data-value="dark">🌙 Tmavý</button>
+        </div>
+      </section>
 
-        <!-- Směna -->
-        <section class="settings-section">
-          <h3>Směna</h3>
-          <div class="segmented-control" id="shift-control">
-            <button data-value="A">A</button>
-            <button data-value="B">B</button>
-            <button data-value="C">C</button>
-            <button data-value="D">D</button>
-          </div>
-        </section>
-
-      </div>
-
-      <div class="settings-footer">
-        <button id="btn-settings-ok">OK</button>
-      </div>
+      <!-- Směna -->
+      <section class="settings-section">
+        <h3>Směna</h3>
+        <div class="segmented-control" id="shift-control">
+          <button data-value="A">A</button>
+          <button data-value="B">B</button>
+          <button data-value="C">C</button>
+          <button data-value="D">D</button>
+        </div>
+      </section>
     </div>
+
+    <!-- Hodiny -->
+    <div id="hours" class="tab-pane active">
+      <section class="settings-section">
+        <label for="time-format">Formát času</label>
+        <input type="text" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="Zadejte 6 číslic">
+      </section>
+    </div>
+  </div>
+
+  <div class="settings-footer">
+    <button id="btn-settings-ok">OK</button>
+  </div>
+</div>
 
     <!-- Obrazovka editace hodin -->
     <div id="edit-screen" class="screen">
