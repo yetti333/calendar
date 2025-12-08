@@ -137,13 +137,6 @@ document.getElementById('btn-settings').addEventListener('click', () => {
   if (navigator.vibrate) navigator.vibrate(vibr);
 });
 
-// tlačítko OK v nastavení
-document.getElementById("btn-settings-ok").addEventListener("click", () => {
-  showScreen(calendarScreen);
-  document.body.classList.remove("settings-open");
-  if (navigator.vibrate) navigator.vibrate(vibr);
-});
-
 // tlačítko ✏️ Editovat
 const btnEdit = document.getElementById("btn-edit").addEventListener("click", () => {
   showScreen(editScreen);
@@ -507,7 +500,62 @@ themeControl.addEventListener("click", (e) => {
 });
 
 // =============================
-//      SMĚNA ZOBRAZENÍ
+//      INPUT HODIN 
+// ============================
+const inputs = document.querySelectorAll('#hours input[type="number"]');
+
+inputs.forEach(input => {
+  // načtení uložené hodnoty
+  const savedValue = localStorage.getItem(input.id);
+  if (savedValue !== null) {
+    input.value = savedValue;
+  }
+  // při kliknutí do pole se vymaže obsah
+  input.addEventListener('focus', function() {
+    this.select();
+  });
+
+  // volitelně i při kliknutí myší
+  input.addEventListener('click', function() {
+    this.value = '';
+  });
+
+  // Enter = vyskočení z pole
+  input.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.blur(); // ztratí focus
+    }
+  });
+
+  // tlačítko OK uloží všechny hodnoty
+  const btnOk = document.getElementById('btn-settings-ok');
+  btnOk.addEventListener('click', () => {
+    inputs.forEach(input => {
+      localStorage.setItem(input.id, input.value);
+    });
+    showScreen(calendarScreen);
+    document.body.classList.remove("settings-open");
+    if (navigator.vibrate) navigator.vibrate(vibr);
+  });
+
+  // tlačítko Cancel vrátí hodnotu z localStorage
+  const btnCancel = document.getElementById('btn-settings-cancel');
+  btnCancel.addEventListener('click', () => {
+    const savedValue = localStorage.getItem(input.id);
+    if (savedValue !== null) {
+      input.value = savedValue;
+    }
+    showScreen(calendarScreen);
+    document.body.classList.remove("settings-open");
+    if (navigator.vibrate) navigator.vibrate(vibr);
+  });
+});
+
+
+// =============================
+//      SMĚNA - ZOBRAZENÍ
 // ============================
 const shiftControl = document.getElementById("shift-control");
 

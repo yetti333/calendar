@@ -77,20 +77,67 @@
     </div>
 
     <!-- Hodiny -->
-    <div id="hours" class="tab-pane active">
-      <section class="settings-section">
-        <label for="time-format">Formát času</label>
-        <input type="text" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="Zadejte 6 číslic">
-      </section>
-    </div>
+<div id="hours" class="tab-pane active">
+  <section class="settings-section">
+    <h2>Základní nastavení pracovních hodin pro jednotlivé směnové dny</h2>
+    
+    <table class="hours-table">
+      <thead>
+        <tr>
+          <th>Den</th>
+          <th>Pracovní hodiny</th>
+          <th>Přesčasy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Pondělí</td>
+          <td><input type="number" id="mon-hours" name="mon-hours" value="7.5" step="0.5"></td>
+          <td><input type="number" id="mon-overtime" name="mon-overtime" value="0" step="0.5"></td>
+        </tr>
+        <tr>
+          <td>Úterý</td>
+          <td><input type="number" id="tue-hours" name="tue-hours" value="7.5" step="0.5"></td>
+          <td><input type="number" id="tue-overtime" name="tue-overtime" value="0" step="0.5"></td>
+        </tr>
+        <tr>
+          <td>Středa</td>
+          <td><input type="number" id="wed-hours" name="wed-hours" value="7.5" step="0.5"></td>
+          <td><input type="number" id="wed-overtime" name="wed-overtime" value="0" step="0.5"></td>
+        </tr>
+        <tr>
+          <td>Čtvrtek</td>
+          <td><input type="number" id="thu-hours" name="thu-hours" value="7.5" step="0.5"></td>
+          <td><input type="number" id="thu-overtime" name="thu-overtime" value="0" step="0.5"></td>
+        </tr>
+        <tr>
+          <td>Pátek</td>
+          <td><input type="number" id="fri-hours" name="fri-hours" value="7.5" step="0.5"></td>
+          <td><input type="number" id="fri-overtime" name="fri-overtime" value="0" step="0.5"></td>
+        </tr>
+        <tr>
+          <td>Sobota</td>
+          <td><input type="number" id="sat-hours" name="sat-hours" value="11" step="0.5"></td>
+          <td><input type="number" id="sat-overtime" name="sat-overtime" value="0" step="0.5"></td>
+        </tr>
+        <tr>
+          <td>Neděle</td>
+          <td><input type="number" id="sun-hours" name="sun-hours" value="7.5" step="0.5"></td>
+          <td><input type="number" id="sun-overtime" name="sun-overtime" value="0" step="0.5"></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>
   </div>
 
   <div class="settings-footer">
+    <button id="btn-settings-cancel">Cancel</button>
     <button id="btn-settings-ok">OK</button>
   </div>
 </div>
 
-    <!-- Obrazovka editace hodin -->
+  <!-- Obrazovka editace hodin vybraného dne -->
     <div id="edit-screen" class="screen">
   <h2>Nastavení pracovních hodin</h2>
 
