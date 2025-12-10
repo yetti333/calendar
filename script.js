@@ -359,11 +359,12 @@ btnHours.addEventListener("click", async () => {
 
       request.onsuccess = () => {
         const data = request.result;
-        if (data && data.hours) {
+        if ((data && data.hours) || (data && data.overtime)) {
           // zobrazíme uložené hodiny
-          cell.textContent = data.hours + " h";
+          const totalHours = parseFloat(data.hours) + parseFloat(data.overtime || "0");
+          cell.textContent = totalHours + " h";
         } else {
-          //// fallback: načteme defaultní hodnotu z localStorage
+            // kdyz v WorkHoursDB nic není, tak načteme defaultní hodnotu z localStorage
             const dateObj = new Date(dateKey);
             const weekday = dateObj.getDay(); // 0 = neděle, 1 = pondělí, ...
             const defaultHours = localStorage.getItem(weekdayMapHours[weekday]);
