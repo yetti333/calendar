@@ -60,10 +60,11 @@ html, body {
 }
 
 #month-year {
+  flex: 1;
   font-size: 1.5rem;
   margin: 0;
-  width: 180px;
   text-align: center;
+  color: #2196f3;
 }
 
 /* === Grid === */

@@ -49,7 +49,8 @@ const velikonoce = {
 };
 let currentYear = new Date().getFullYear(); //datum kalendáře
 let currentMonth = new Date().getMonth(); // 0 = leden, 11 = prosinec
-let shiftText = "aa";
+let shiftText = "";
+let currentSelectedDate = "";
 const actualDate = new Date(); //reálné datum
 const actualDay = actualDate.getDate();
 const actualMonth = actualDate.getMonth();
@@ -62,60 +63,6 @@ const vibr = 7;
 const calendarScreen = document.getElementById('calendar-screen');
 const settingsScreen = document.getElementById('settings-screen');
 const editScreen = document.getElementById('edit-screen');
-
-// ===================================
-//      INDEXEDDB PRO PRACOVNÍ HODINY
-// ===================================
-// Inicializace databáze (na začátku kódu)
-const request = indexedDB.open("CalendarDB", 1);
-
-request.onupgradeneeded = (event) => {
-  const db = event.target.result;
-  if (!db.objectStoreNames.contains("hours")) {
-    // klíčem bude den (např. "2025-12-06")
-    db.createObjectStore("hours", { keyPath: "day" });
-  }
-};
-
-// Funkce pro uložení hodin (Promise + async/await)
-function saveHours(day, data) {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open("CalendarDB", 1);
-
-    request.onsuccess = (event) => {
-      const db = event.target.result;
-      const tx = db.transaction("hours", "readwrite");
-      const store = tx.objectStore("hours");
-
-      // put = vloží nebo přepíše záznam pro daný den
-      store.put({ day, ...data });
-
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => reject(tx.error);
-    };
-
-    request.onerror = () => reject(request.error);
-  });
-}
-
-// Funkce pro načtení hodin (Promise + async/await)
-function loadHours(day) {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open("CalendarDB", 1);
-
-    request.onsuccess = (event) => {
-      const db = event.target.result;
-      const tx = db.transaction("hours", "readonly");
-      const store = tx.objectStore("hours");
-
-      const getReq = store.get(day);
-      getReq.onsuccess = () => resolve(getReq.result);
-      getReq.onerror = () => reject(getReq.error);
-    };
-
-    request.onerror = () => reject(request.error);
-  });
-}
 
 // ===================================
 //      FUNKCE ZOBRAZENÍ OBRAZOVEK
@@ -147,37 +94,6 @@ const btnEdit = document.getElementById("btn-edit").addEventListener("click", ()
   if (navigator.vibrate) navigator.vibrate(vibr);
 });
 
-const hoursForm = document.getElementById("hours-form");
-const btnCancel = document.getElementById("btn-cancel");
-
-hoursForm.addEventListener("submit", async(e) => {
-  e.preventDefault();
-
-  const data = {
-      weekday: parseFloat(document.getElementById("weekday-hours").value) || 0,
-      saturday: parseFloat(document.getElementById("saturday-hours").value) || 0,
-      sunday: parseFloat(document.getElementById("sunday-hours").value) || 0,
-      overtime: parseFloat(document.getElementById("overtime-hours").value) || 0,
-    };
-  const today = new Date().toISOString().split("T")[0];
-  await saveHours(today, data);
- 
-  console.log("Uloženo:", today, data);
-
-  // návrat na kalendář
-  showScreen(calendarScreen);
-  document.body.classList.remove("edit-open");
-});
-
-btnCancel.addEventListener("click", () => {
-  // návrat bez uložení
-  showScreen(calendarScreen);
-  document.body.classList.remove("edit-open");
-});
-
-// ======================================
-//      EDITAČNÍ OBRAZOVKA VYBRANEHO DNE
-// ======================================
 // Zobrazení vybraného dne v edit-screen
 function showSelectedDay(dateString) {
   const dateObj = new Date(dateString);
@@ -206,25 +122,6 @@ function openDB() {
   });
 }
 
-// Pomocná funkce pro defaultní hodnoty podle dne v týdnu
-function getDefaultValuesForDay(dateObj) {
-  const day = dateObj.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
-  let hours = 7.5;
-
-  if (day === 6) {        // sobota
-    hours = 11;
-  } else if (day === 0) { // neděle
-    hours = 7.5;
-  }
-
-  return {
-    hours: hours,
-    overtime: 0,
-    note: '',
-    shift: 'ranni'
-  };
-}
-
 // Načtení dat pro konkrétní den
 async function loadDayData(selectedDate) {
   const db = await openDB();
@@ -241,25 +138,15 @@ async function loadDayData(selectedDate) {
       document.getElementById('day-note').value = data.note || '';
       document.getElementById('day-shift').value = data.shift || 'ranni';
     } else {
-      // fallback na localStorage
-      const lsHours = localStorage.getItem('weekday-hours');
-      const lsOvertime = localStorage.getItem('overtime-hours');
-
-      if (lsHours !== null || lsOvertime !== null) {
-        document.getElementById('day-hours').value = lsHours || '7.5';
-        document.getElementById('day-overtime').value = lsOvertime || '0';
-        document.getElementById('day-note').value = '';
-        document.getElementById('day-shift').value = 'ranni';
-      } else {
-        // fallback na defaultní hodnoty podle dne v týdnu
-        const dateObj = new Date(selectedDate);
-        const defaults = getDefaultValuesForDay(dateObj);
-
-        document.getElementById('day-hours').value = defaults.hours;
-        document.getElementById('day-overtime').value = defaults.overtime;
-        document.getElementById('day-note').value = defaults.note;
-        document.getElementById('day-shift').value = defaults.shift;
-      }
+      // kdyz v WorkHoursDB nic není, tak načteme defaultní hodnotu z localStorage z defaultních hodin
+      const dateObj = new Date(currentSelectedDate);
+      const weekday = dateObj.getDay(); // 0 = neděle, 1 = pondělí, ...
+      const defaultHours = localStorage.getItem(weekdayMapHours[weekday]);
+      const defaultOvertime = localStorage.getItem(weekdayMapOvertime[weekday]);
+      document.getElementById('day-hours').value = defaultHours || '7.5';
+      document.getElementById('day-overtime').value = defaultOvertime || '0';
+      document.getElementById('day-note').value = '';
+      document.getElementById('day-shift').value = shiftText;
     }
   };
 }
@@ -284,7 +171,7 @@ async function saveDayData(selectedDate) {
 // Obsluha tlačítek
 document.getElementById('btn-ok').addEventListener('click', async (e) => {
   e.preventDefault();
-  const selectedDate = window.currentSelectedDate; // definováno při kliknutí na kalendář
+  const selectedDate = currentSelectedDate; // definováno při kliknutí na kalendář
   await saveDayData(selectedDate);
   //alert('Data uložena ✅');
   // návrat na kalendář
@@ -362,15 +249,15 @@ btnHours.addEventListener("click", async () => {
         if ((data && data.hours) || (data && data.overtime)) {
           // zobrazíme uložené hodiny
           const totalHours = parseFloat(data.hours) + parseFloat(data.overtime || "0");
-          cell.textContent = totalHours + " h";
+          cell.textContent = totalHours;
         } else {
-            // kdyz v WorkHoursDB nic není, tak načteme defaultní hodnotu z localStorage
+            // kdyz v WorkHoursDB nic není, tak načteme defaultní hodnotu z localStorage z defaultních hodin
             const dateObj = new Date(dateKey);
             const weekday = dateObj.getDay(); // 0 = neděle, 1 = pondělí, ...
             const defaultHours = localStorage.getItem(weekdayMapHours[weekday]);
             const defaultOvertime = localStorage.getItem(weekdayMapOvertime[weekday]);
             const totalHours = parseFloat(defaultHours || "0") + parseFloat(defaultOvertime || "0");
-            cell.textContent = totalHours + " h";
+            cell.textContent = totalHours;
           }
         };
     });
@@ -384,7 +271,7 @@ btnHours.addEventListener("click", async () => {
 //      ZÍSKÁNÍ POLE SMĚNY
 // ============================
 function getShiftArray() {
-  const shift = localStorage.getItem("shift") || "A";
+  const shift = localStorage.getItem("shift") || "D";
 
   switch (shift) {
     case "A": return smenaA;
@@ -409,6 +296,11 @@ function renderCalendar(year, month) {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+  // Pomocná funkce pro formátování ISO bez posunu
+  function formatDateISO(year, month, day) {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
 
   // Zobrazit název měsíce a rok
   monthYear.textContent = firstDay.toLocaleString('cs-CZ', {
@@ -463,7 +355,6 @@ function renderCalendar(year, month) {
     // převod smeny na text
     const shiftValue = smena[shiftDayIndex];
     shiftText = shifts[shiftValue];
-
     
      // svátky
     const key = `${day}-${month+1}`; // měsíc +1 protože Date.getMonth() je 0-based
@@ -492,51 +383,82 @@ function renderCalendar(year, month) {
   
   btnEdit.disabled = true;
   btnEdit.style.pointerEvents = 'none';
-
-  // Pomocná funkce pro formátování ISO bez posunu
-  function formatDateISO(year, month, day) {
-    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  }
-
+  
   dayCells.forEach(cell => {
     if (cell.textContent.trim() !== '') {
       cell.addEventListener('click', () => {
-        // Zruš předchozí výběr
-        dayCells.forEach(c => c.classList.remove('selected'));
-        //console.log("Kliknutý den:", selectedDay);
 
         // Číslo dne
-        const dayNum = parseInt(cell.textContent, 10);
-
-        // Sestav plné datum (bez posunu časové zóny)
-        const selectedDateISO = formatDateISO(year, month, dayNum);
-        window.currentSelectedDate = selectedDateISO;
-
-        // Zobraz vybraný den a načti data
-        showSelectedDay(selectedDateISO, shiftText);
-        console.log("Zobrazený den2:", selectedDateISO, shiftText);
-        loadDayData(selectedDateISO);
+      const dayNum = parseInt(cell.textContent, 10);
         
-        // Přidej zvýraznění na kliknutý den
-        cell.classList.add('selected');
-        selectedDay = parseInt(cell.textContent);
-        // Aktivuj tlačítko Editovat
-        btnEdit.disabled = false;
-        btnEdit.style.pointerEvents = 'auto';
+      // Sestav plné datum (bez posunu časové zóny)
+      const selectedDateISO = formatDateISO(year, month, dayNum);
+
+      if (selectedDateISO !== currentSelectedDate) {
+        dayCells.forEach(c => c.classList.remove('selected'));
+        currentSelectedDate = selectedDateISO;
+      } else {
+        // Pokud je kliknuto na již vybraný den, zruší výběr
+        cell.classList.remove('selected');
+        currentSelectedDate = "";
+        selectedDay = null;
+        btnEdit.disabled = true;
+        btnEdit.style.pointerEvents = 'none';
         if (navigator.vibrate) navigator.vibrate(vibr);
-      });
+        return;
+      }
+      
+      // Přidej zvýraznění na kliknutý den
+      cell.classList.add('selected');
+      selectedDay = parseInt(cell.textContent);
+
+      // Zjisti směnu pro vybraný den
+      const selectedShift = "";
+      const shiftDayStart = daysBetween(new Date(currentYear, currentMonth, 1));
+      const shiftDayIndex = (shiftDayStart + selectedDay - 1) % 28;
+      const smena = getShiftArray();
+      const selectedShiftValue = smena[shiftDayIndex];
+      shiftText = shifts[selectedShiftValue];
+
+      // Zobraz vybraný den do nadpisu a edit-screen
+      showSelectedDay(selectedDateISO, selectedShiftValue);
+      if (currentSelectedDate !== "") {
+        monthYear.textContent = firstDay.toLocaleString('cs-CZ', {
+          month: 'long',
+          year: 'numeric'
+        });
+        monthYear.textContent += ` - ${shiftText}`;
+      } else {
+        monthYear.textContent = firstDay.toLocaleString('cs-CZ', {
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+      // Načti data pro vybraný den     
+      loadDayData(selectedDateISO);
+
+      //console.log("selectedDateISO:", selectedDateISO, " currentSelected", currentSelectedDate);
+      //console.log("selectedShiftValue:", selectedShiftValue, " shiftText:", shiftText);
+
+      // Aktivuj tlačítko Editovat
+      btnEdit.disabled = false;
+      btnEdit.style.pointerEvents = 'auto';
+      if (navigator.vibrate) navigator.vibrate(vibr);
+    });
+   }
+  });
+  
+  // Kliknutí mimo kalendář = zrušení výběru
+  document.addEventListener('click', e => {
+    if (!calendar.contains(e.target) && !btnEdit.contains(e.target)) {
+      dayCells.forEach(c => c.classList.remove('selected'));
+      selectedDay = null;
+      btnEdit.disabled = true;
+      btnEdit.style.pointerEvents = 'none';
     }
   });
+  
 
-  // Kliknutí mimo kalendář = zrušení výběru
-document.addEventListener('click', e => {
-  if (!calendar.contains(e.target) && !btnEdit.contains(e.target)) {
-    dayCells.forEach(c => c.classList.remove('selected'));
-    selectedDay = null;
-    btnEdit.disabled = true;
-    btnEdit.style.pointerEvents = 'none';
-  }
-});
 }
 
 // ===================================
@@ -544,11 +466,6 @@ document.addEventListener('click', e => {
 // ===================================
 function animateCalendarUpdate(callback) {
   const calendar = document.getElementById('calendar');
-
-  // Načtení hodin při renderu kalendáře
-  loadHours(new Date().toISOString().split("T")[0]).then(entry => {
-  console.log("Načtené hodiny při renderu kalendáře:", entry);
-  });
 
   calendar.classList.add('fade-out');
 
