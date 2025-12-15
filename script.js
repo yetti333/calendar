@@ -51,6 +51,7 @@ let currentYear = new Date().getFullYear(); //datum kalendáře
 let currentMonth = new Date().getMonth(); // 0 = leden, 11 = prosinec
 let shiftText = "";
 let currentSelectedDate = "";
+let selectedShiftValue = -1;
 const actualDate = new Date(); //reálné datum
 const actualDay = actualDate.getDate();
 const actualMonth = actualDate.getMonth();
@@ -68,13 +69,42 @@ const editScreen = document.getElementById('edit-screen');
 //      FUNKCE ZOBRAZENÍ OBRAZOVEK
 // ===================================
 function showScreen(screen) {
-  // schovat obě
+  // schovat všechny obrazovky
   calendarScreen.classList.remove('active');
   settingsScreen.classList.remove('active');
   editScreen.classList.remove('active');
 
-  // zobrazit vybranou
+  // zobrazit vybranou obrazovku
   screen.classList.add('active');
+
+  // pokud se vracíme na kalendář, obnov označení vybraného dne
+  if (screen === calendarScreen) {
+    const savedSelectedDate = localStorage.getItem("selectedDate");
+    if (!savedSelectedDate) return;
+
+    // počkej do dalšího snímku, ať je DOM připravený
+    requestAnimationFrame(() => {
+      // pomocí kontextu omez dotaz na správný kalendář
+      const cellHours = calendarScreen.querySelector(`.day-hours[data-date="${savedSelectedDate}"]`);
+
+      if (cellHours) {
+        calendarScreen.querySelectorAll(".day.selected").forEach(el => el.classList.remove("selected"));
+        cellHours.parentElement.classList.add("selected");
+      } else {
+        // fallback: pokud buňka neexistuje (např. měníš měsíc), znovu vyrenderuj aktuální měsíc
+        renderCalendar(actualYear, actualMonth);
+
+        // a po renderu zkus obnovu ještě jednou
+        requestAnimationFrame(() => {
+          const retryHours = calendarScreen.querySelector(`.day-hours[data-date="${savedSelectedDate}"]`);
+          if (retryHours) {
+            calendarScreen.querySelectorAll(".day.selected").forEach(el => el.classList.remove("selected"));
+            retryHours.parentElement.classList.add("selected");
+          }
+        });
+      }
+    });
+  }
 }
 
 // =============================
@@ -136,17 +166,18 @@ async function loadDayData(selectedDate) {
       document.getElementById('day-hours').value = data.hours;
       document.getElementById('day-overtime').value = data.overtime;
       document.getElementById('day-note').value = data.note || '';
-      document.getElementById('day-shift').value = data.shift || 'ranni';
+      document.getElementById('day-shift').value = data.shift;
     } else {
       // kdyz v WorkHoursDB nic není, tak načteme defaultní hodnotu z localStorage z defaultních hodin
       const dateObj = new Date(currentSelectedDate);
       const weekday = dateObj.getDay(); // 0 = neděle, 1 = pondělí, ...
       const defaultHours = localStorage.getItem(weekdayMapHours[weekday]);
       const defaultOvertime = localStorage.getItem(weekdayMapOvertime[weekday]);
+      const shiftMapSelector = ["volno","ranni","odpoledni","nocni"];
       document.getElementById('day-hours').value = defaultHours || '7.5';
       document.getElementById('day-overtime').value = defaultOvertime || '0';
       document.getElementById('day-note').value = '';
-      document.getElementById('day-shift').value = shiftText;
+      document.getElementById('day-shift').value = shiftMapSelector[selectedShiftValue];
     }
   };
 }
@@ -169,18 +200,19 @@ async function saveDayData(selectedDate) {
 }
 
 // Obsluha tlačítek
-document.getElementById('btn-ok').addEventListener('click', async (e) => {
+
+const btnEditOk = document.getElementById('btn-ok').addEventListener('click', async (e) => {
   e.preventDefault();
   const selectedDate = currentSelectedDate; // definováno při kliknutí na kalendář
   await saveDayData(selectedDate);
-  //alert('Data uložena ✅');
   // návrat na kalendář
   showScreen(calendarScreen);
   document.body.classList.remove("edit-open");
 });
 
-document.getElementById('btn-cancel').addEventListener('click', () => {
-  // návrat na kalendář
+const btnEditCancel = document.getElementById('btn-cancel').addEventListener('click', async (e) => {
+  e.preventDefault();
+   // návrat na kalendář
   showScreen(calendarScreen);
   document.body.classList.remove("edit-open");
 });
@@ -230,6 +262,7 @@ const weekdayMapOvertime = ["sun-overtime","mon-overtime","tue-overtime","wed-ov
 btnHours.addEventListener("click", async () => {
   document.body.classList.toggle("show-hours");
   btnHours.classList.toggle("active");
+  if (navigator.vibrate) navigator.vibrate(vibr);
 
   const hoursCells = document.querySelectorAll(".day-hours");
 
@@ -333,6 +366,7 @@ function renderCalendar(year, month) {
   }
 
   // Dny v měsíci
+  const currentSelectedDateRender = localStorage.getItem("selectedDate");
   for (let day = 1; day <= lastDay.getDate(); day++) {
     const date = new Date(year, month, day);
     const dayOfWeek = date.getDay();
@@ -343,6 +377,12 @@ function renderCalendar(year, month) {
     
     // Dnes
     if (day === actualDay && month === actualMonth && year === actualYear) classes += ' dnes';
+
+    // když je v locakStorage vybraný den, tak ho označíme
+    if (currentSelectedDateRender === formatDateISO(year, month, day)) {
+      classes += ' selected';
+      console.log("currentSelectedDate in render:", currentSelectedDateRender);
+    }
     
     // Směny
     shiftDayStart = daysBetween(new Date(year, month, 1));
@@ -367,6 +407,7 @@ function renderCalendar(year, month) {
       }
     
     const dateKey = formatDateISO(year, month, day);
+    
    
     calendar.innerHTML += `
       <div class="day ${classes.trim()}" title="${tooltip}">
@@ -381,8 +422,7 @@ function renderCalendar(year, month) {
   let selectedDay = null;
   const btnEdit = document.getElementById('btn-edit');
   
-  btnEdit.disabled = true;
-  btnEdit.style.pointerEvents = 'none';
+  updateEditButtonState();
   
   dayCells.forEach(cell => {
     if (cell.textContent.trim() !== '') {
@@ -394,20 +434,22 @@ function renderCalendar(year, month) {
       // Sestav plné datum (bez posunu časové zóny)
       const selectedDateISO = formatDateISO(year, month, dayNum);
 
+      // Pokud je vybraný den jiný než předchozí, zruš předchozí výběr a ulož nový
       if (selectedDateISO !== currentSelectedDate) {
         dayCells.forEach(c => c.classList.remove('selected'));
         currentSelectedDate = selectedDateISO;
+        localStorage.setItem('selectedDate', currentSelectedDate);
       } else {
-        // Pokud je kliknuto na již vybraný den, zruší výběr
+        // Pokud je stejný den, zruš výběr a smaž z localStorage
         cell.classList.remove('selected');
         currentSelectedDate = "";
-        selectedDay = null;
+        localStorage.removeItem('selectedDate');
+        // Deaktivuj tlačítko Editovat
         btnEdit.disabled = true;
         btnEdit.style.pointerEvents = 'none';
-        if (navigator.vibrate) navigator.vibrate(vibr);
-        return;
+        return; // ukonči funkci
       }
-      
+            
       // Přidej zvýraznění na kliknutý den
       cell.classList.add('selected');
       selectedDay = parseInt(cell.textContent);
@@ -417,7 +459,7 @@ function renderCalendar(year, month) {
       const shiftDayStart = daysBetween(new Date(currentYear, currentMonth, 1));
       const shiftDayIndex = (shiftDayStart + selectedDay - 1) % 28;
       const smena = getShiftArray();
-      const selectedShiftValue = smena[shiftDayIndex];
+      selectedShiftValue = smena[shiftDayIndex];
       shiftText = shifts[selectedShiftValue];
 
       // Zobraz vybraný den do nadpisu a edit-screen
@@ -436,10 +478,6 @@ function renderCalendar(year, month) {
       }
       // Načti data pro vybraný den     
       loadDayData(selectedDateISO);
-
-      //console.log("selectedDateISO:", selectedDateISO, " currentSelected", currentSelectedDate);
-      //console.log("selectedShiftValue:", selectedShiftValue, " shiftText:", shiftText);
-
       // Aktivuj tlačítko Editovat
       btnEdit.disabled = false;
       btnEdit.style.pointerEvents = 'auto';
@@ -447,18 +485,17 @@ function renderCalendar(year, month) {
     });
    }
   });
-  
-  // Kliknutí mimo kalendář = zrušení výběru
-  document.addEventListener('click', e => {
-    if (!calendar.contains(e.target) && !btnEdit.contains(e.target)) {
-      dayCells.forEach(c => c.classList.remove('selected'));
-      selectedDay = null;
-      btnEdit.disabled = true;
-      btnEdit.style.pointerEvents = 'none';
-    }
-  });
-  
 
+  function updateEditButtonState() {
+  const savedSelectedDate = localStorage.getItem("selectedDate") || currentSelectedDate;
+  if (savedSelectedDate) {
+    btnEdit.disabled = false;
+    btnEdit.style.pointerEvents = 'auto';
+  } else {
+    btnEdit.disabled = true;
+    btnEdit.style.pointerEvents = 'none';
+  }
+}
 }
 
 // ===================================
@@ -466,6 +503,7 @@ function renderCalendar(year, month) {
 // ===================================
 function animateCalendarUpdate(callback) {
   const calendar = document.getElementById('calendar');
+  localStorage.removeItem("selectedDate");
 
   calendar.classList.add('fade-out');
 
